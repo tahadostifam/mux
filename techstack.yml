@@ -1,0 +1,32 @@
+repo_name: tahadostifam/go-mux
+report_id: a1f59d9287cdff721a76f84c32c17608
+version: 0.1
+repo_type: Public
+timestamp: '2024-07-25T21:37:58+00:00'
+requested_by: tahadostifam
+provider: github
+branch: main
+detected_tools_count: 2
+tools:
+- name: Golang
+  description: An open source programming language that makes it easy to build simple,
+    reliable, and efficient software
+  website_url: http://golang.org/
+  license: BSD-3-Clause
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1005/O6AczwfV_400x400.png
+  detection_source_url: https://github.com/tahadostifam/go-mux
+  detection_source: Repo Metadata
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/tahadostifam/go-mux
+  detection_source: Repo Metadata
