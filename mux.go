@@ -47,7 +47,7 @@ func (ro *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Set params
-		r = r.WithContext(context.WithValue(r.Context(), ParamsGetter{}, paramsMap))
+		r = r.WithContext(context.WithValue(r.Context(), paramsGetter{}, paramsMap))
 
 		// We have a match! Let's call the handler =)
 		route.ServeHTTP(w, r)

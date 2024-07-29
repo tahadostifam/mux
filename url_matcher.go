@@ -2,11 +2,16 @@ package mux
 
 import (
 	"errors"
+	"net/http"
 	"strings"
 )
 
-type ParamsGetter struct{}
+type paramsGetter struct{}
 type ParamsMap = map[string]string
+
+func Params(r *http.Request) ParamsMap {
+	return r.Context().Value(paramsGetter{}).(ParamsMap)
+}
 
 func UrlMatchesPattern(pattern string, url string) (bool, ParamsMap, error) {
 	if pattern == "" || url == "" {

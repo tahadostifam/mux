@@ -19,7 +19,7 @@ func main() {
 	})
 
 	router.Route("GET", "/posts/{slug}", func(w http.ResponseWriter, r *http.Request) {
-		params := r.Context().Value(mux.ParamsGetter{}).(mux.ParamsMap)
+		params := mux.Params(r)
 
 		slug := params["slug"]
 

@@ -1,18 +1,22 @@
 # 👾 MUX: A Simple and Lightweight Routing Library
+
 Designed for fun and simplicity! =)
 
-## Features: 
-- **URL Path Matching:** Define routes with flexible path patterns to handle different URL structures.
-- **Handler Functions:** Associate handler functions with specific routes to determine how requests are processed.
-- **Method Support:** Handle various HTTP request methods like **GET**, **POST**, **PUT**, **DELETE**, and more.
-- **Parameter Extraction:** Extract dynamic values from URLs for flexible route handling.
+## Features:
+
+-   **URL Path Matching:** Define routes with flexible path patterns to handle different URL structures.
+-   **Handler Functions:** Associate handler functions with specific routes to determine how requests are processed.
+-   **Method Support:** Handle various HTTP request methods like **GET**, **POST**, **PUT**, **DELETE**, and more.
+-   **Parameter Extraction:** Extract dynamic values from URLs for flexible route handling.
 
 ## Install
+
 ```bash
-go get -u github.com/tahadostifam/mux@latest   
+go get -u github.com/tahadostifam/mux@latest
 ```
 
 ## Example
+
 ```go
 package main
 
@@ -35,7 +39,7 @@ func main() {
 	})
 
 	router.Route("GET", "/posts/{slug}", func(w http.ResponseWriter, r *http.Request) {
-		params := r.Context().Value(mux.ParamsGetter{}).(mux.ParamsMap)
+		params := mux.Params(r)
 
 		slug := params["slug"]
 
@@ -46,4 +50,5 @@ func main() {
 	http.ListenAndServe(":3000", router)
 }
 ```
+
 Check `examples/` directory for more...
