@@ -23,6 +23,7 @@ func (ro *Router) PATCH(path string, handlerFunc http.HandlerFunc) {
 type (
 	defaultMethodNotAllowedHandler struct{}
 	defaultNotFoundHandler         struct{}
+	defaultInternalErrorHandler    struct{}
 )
 
 func (*defaultMethodNotAllowedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -35,4 +36,10 @@ func (*defaultNotFoundHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	w.Header()["Content-Type"] = []string{"application/json"}
 	w.WriteHeader(http.StatusNotFound)
 	w.Write(errNotFound)
+}
+
+func (*defaultInternalErrorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header()["Content-Type"] = []string{"application/json"}
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write(errInternalError)
 }

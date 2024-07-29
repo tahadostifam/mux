@@ -1,6 +1,7 @@
 package mux
 
 import (
+	"context"
 	"net/http"
 	"strings"
 )
@@ -13,13 +14,16 @@ type Router struct {
 type RouterConfig struct {
 	NotFoundHandler         http.Handler
 	MethodNotAllowedHandler http.Handler
+	InternalErrorHandler    http.Handler
 }
 
 var DefaultRouterConfig = &RouterConfig{
 	NotFoundHandler:         &defaultNotFoundHandler{},
 	MethodNotAllowedHandler: &defaultMethodNotAllowedHandler{},
+	InternalErrorHandler:    &defaultInternalErrorHandler{},
 }
 
+// Init route
 func (ro *Router) Route(method, path string, handlerFunc http.HandlerFunc) {
 	route := &Route{
 		Method:  method,
@@ -32,7 +36,7 @@ func (ro *Router) Route(method, path string, handlerFunc http.HandlerFunc) {
 
 func (ro *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, route := range ro.routes {
-		match := route.Match(r)
+		match, paramsMap, _ := UrlMatchesPattern(route.Path, r.URL.Path)
 		if !match {
 			continue
 		}
@@ -42,7 +46,10 @@ func (ro *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// We have a match! Call the handler, and return
+		// Set params
+		r = r.WithContext(context.WithValue(r.Context(), ParamsGetter{}, paramsMap))
+
+		// We have a match! Let's call the handler =)
 		route.ServeHTTP(w, r)
 		return
 	}
