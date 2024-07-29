@@ -52,3 +52,14 @@ func main() {
 ```
 
 Check `examples/` directory for more...
+
+## Benchmark
+
+```txt
+goos: linux
+goarch: amd64
+pkg: github.com/tahadostifam/go-mux
+cpu: Intel(R) Core(TM) i7-6820HQ CPU @ 2.70GHz
+BenchmarkUrlMatchesPattern
+BenchmarkUrlMatchesPattern-8 [1093012] [1106 ns/op] [1345 B/op] [11 allocs/op]
+```

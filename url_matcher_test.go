@@ -1,6 +1,9 @@
 package mux
 
 import (
+	"log"
+	"os"
+	"runtime/pprof"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -89,5 +92,19 @@ func TestUrlMatchesPattern(t *testing.T) {
 
 		require.Equal(t, matches, tc.matches, tc.url)
 		require.Equal(t, paramsMap, tc.paramsMap)
+	}
+}
+
+func BenchmarkUrlMatchesPattern(b *testing.B) {
+	f, err := os.Create("url_matcher_allocs.pprof")
+	if err != nil {
+		log.Fatalln("Could not create file", err)
+	}
+	defer f.Close()
+
+	pprof.Lookup("allocs").WriteTo(f, 0)
+
+	for i := 0; i < b.N; i++ {
+		UrlMatchesPattern("/{slug}", "hello_world")
 	}
 }
