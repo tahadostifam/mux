@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	router := mux.NewRouter(*mux.DefaultRouterConfig)
+	router := mux.NewRouter(mux.DefaultRouterConfig)
 
 	router.GET("/sample", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Sample"))

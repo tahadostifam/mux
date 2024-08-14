@@ -17,7 +17,7 @@ func BenchmarkRouter(b *testing.B) {
 
 	pprof.Lookup("allocs").WriteTo(f, 0)
 
-	router := NewRouter(*DefaultRouterConfig)
+	router := NewRouter(DefaultRouterConfig)
 
 	r, err := http.NewRequest("GET", "/posts/hello_world", nil)
 	if err != nil {
