@@ -61,7 +61,7 @@ Check `examples/` directory for more...
 goos: linux
 goarch: amd64
 pkg: github.com/tahadostifam/go-mux
-cpu: Intel(R) Core(TM) i7-6820HQ CPU @ 2.70GHz
-BenchmarkUrlMatchesPattern
-BenchmarkUrlMatchesPattern-8 [1280358] [866.1 ns/op] [1032 B/op] [6 allocs/op]
+cpu: Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz
+BenchmarkRouter-8                 942849              1325 ns/op             623 B/op          2 allocs/op
+BenchmarkUrlMatchesPattern-8    84036637                13.40 ns/op            0 B/op          0 allocs/op
 ```
