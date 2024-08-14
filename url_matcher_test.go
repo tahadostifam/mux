@@ -84,14 +84,20 @@ func TestUrlMatchesPattern(t *testing.T) {
 		},
 	}
 
+	paramsMap := make(ParamsMap)
 	for _, tc := range testCases {
-		matches, paramsMap, err := urlMatchesPattern(tc.pattern, tc.url)
+		matches, resultMap, err := urlMatchesPattern(tc.pattern, tc.url, paramsMap)
 		if tc.matches {
 			require.NoError(t, err)
 		}
 
 		require.Equal(t, matches, tc.matches, tc.url)
-		require.Equal(t, paramsMap, tc.paramsMap)
+		require.Equal(t, resultMap, tc.paramsMap)
+
+		// Clear the map for the next iteration
+		for k := range paramsMap {
+			delete(paramsMap, k)
+		}
 	}
 }
 
@@ -104,7 +110,13 @@ func BenchmarkUrlMatchesPattern(b *testing.B) {
 
 	pprof.Lookup("allocs").WriteTo(f, 0)
 
+	paramsMap := make(ParamsMap)
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		urlMatchesPattern("/{slug}", "hello_world")
+		urlMatchesPattern("/{slug}", "hello_world", paramsMap)
+		// Clear the map for the next iteration
+		for k := range paramsMap {
+			delete(paramsMap, k)
+		}
 	}
 }
