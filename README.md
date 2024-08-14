@@ -39,14 +39,16 @@ func main() {
 	})
 
 	router.Route("GET", "/posts/{slug}", func(w http.ResponseWriter, r *http.Request) {
+		r.Header.Add("Content-Type", "text/html")
+
 		params := mux.Params(r)
 
 		slug := params["slug"]
 
-		w.Write([]byte("Post Slug => " + slug))
+		w.Write([]byte("<h1>Post Slug:  " + slug + "</h>"))
 	})
 
-	fmt.Println("Server is listening now!")
+	fmt.Println("Server is listening on port 3000!")
 	http.ListenAndServe(":3000", router)
 }
 ```

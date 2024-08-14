@@ -17,16 +17,15 @@ func BenchmarkRouter(b *testing.B) {
 
 	pprof.Lookup("allocs").WriteTo(f, 0)
 
+	router := NewRouter(*DefaultRouterConfig)
+
+	r, err := http.NewRequest("GET", "/posts/hello_world", nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	for i := 0; i < b.N; i++ {
-		router := NewRouter(*DefaultRouterConfig)
-
 		router.Route("GET", "/posts/{slug}", func(w http.ResponseWriter, r *http.Request) {})
-
-		r, err := http.NewRequest("GET", "/posts/hello_world", nil)
-		if err != nil {
-			log.Fatalln(err)
-		}
-
 		router.ServeHTTP(nil, r)
 	}
 }

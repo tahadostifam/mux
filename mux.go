@@ -36,7 +36,7 @@ func (ro *Router) Route(method, path string, handlerFunc http.HandlerFunc) {
 
 func (ro *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, route := range ro.routes {
-		match, paramsMap, _ := UrlMatchesPattern(route.Path, r.URL.Path)
+		match, paramsMap, _ := urlMatchesPattern(route.Path, r.URL.Path)
 		if !match {
 			continue
 		}

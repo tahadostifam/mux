@@ -9,11 +9,13 @@ import (
 type paramsGetter struct{}
 type ParamsMap = map[string]string
 
+var paramsMapInstance = make(ParamsMap, 0)
+
 func Params(r *http.Request) ParamsMap {
 	return r.Context().Value(paramsGetter{}).(ParamsMap)
 }
 
-func UrlMatchesPattern(pattern string, url string) (bool, ParamsMap, error) {
+func urlMatchesPattern(pattern string, url string) (bool, ParamsMap, error) {
 	if pattern == "" || url == "" {
 		return false, nil, errors.New("both pattern and url required")
 	}
@@ -25,11 +27,11 @@ func UrlMatchesPattern(pattern string, url string) (bool, ParamsMap, error) {
 		return false, nil, nil
 	}
 
-	paramsMap := make(ParamsMap)
+	paramsMapInstance := ParamsMap{}
 	for idx, param := range params {
 		if strings.HasPrefix(param, "{") && strings.HasSuffix(param, "}") {
 			key := param[1 : len(param)-1]
-			paramsMap[key] = urlValues[idx]
+			paramsMapInstance[key] = urlValues[idx]
 			continue
 		}
 
@@ -38,5 +40,5 @@ func UrlMatchesPattern(pattern string, url string) (bool, ParamsMap, error) {
 		}
 	}
 
-	return true, paramsMap, nil
+	return true, paramsMapInstance, nil
 }
