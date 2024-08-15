@@ -60,6 +60,6 @@ goos: linux
 goarch: amd64
 pkg: github.com/tahadostifam/go-mux
 cpu: Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz
-BenchmarkRouter-8                 942849              1325 ns/op             623 B/op          2 allocs/op
-BenchmarkUrlMatchesPattern-8    84036637                13.40 ns/op            0 B/op          0 allocs/op
+BenchmarkRouter-8                2014885               567.0 ns/op           210 B/op          0 allocs/op
+BenchmarkUrlMatchesPattern-8    85451278                13.62 ns/op            0 B/op          0 allocs/op
 ```
