@@ -10,22 +10,20 @@ import (
 func main() {
 	router := mux.NewRouter(mux.DefaultRouterConfig)
 
-	router.GET("/sample", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Sample"))
+	router.GET("/sample", func(c *mux.Context) {
+		c.ResponseWriter.Write([]byte("Sample"))
 	})
 
-	router.Route("GET", "/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello world"))
+	router.Route("GET", "/", func(c *mux.Context) {
+		c.ResponseWriter.Write([]byte("Hello world"))
 	})
 
-	router.Route("GET", "/posts/{slug}", func(w http.ResponseWriter, r *http.Request) {
-		r.Header.Add("Content-Type", "text/html")
+	router.Route("GET", "/posts/{slug}", func(c *mux.Context) {
+		c.Request.Header.Add("Content-Type", "text/html")
 
-		params := mux.Params(r)
+		slug := c.Param("slug")
 
-		slug := params["slug"]
-
-		w.Write([]byte("<h1>Post Slug:  " + slug + "</h>"))
+		c.ResponseWriter.Write([]byte("<h1>Post Slug:  " + slug + "</h>"))
 	})
 
 	fmt.Println("Server is listening on port 3000!")

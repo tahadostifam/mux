@@ -25,7 +25,7 @@ func BenchmarkRouter(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		router.Route("GET", "/posts/{slug}", func(w http.ResponseWriter, r *http.Request) {})
+		router.Route("GET", "/posts/{slug}", func(c *Context) {})
 		router.ServeHTTP(nil, r)
 	}
 }

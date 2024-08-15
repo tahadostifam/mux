@@ -1,7 +1,6 @@
 package mux
 
 import (
-	"context"
 	"net/http"
 	"strings"
 	"sync"
@@ -11,22 +10,22 @@ type Router struct {
 	routes       []Route
 	routerConfig *RouterConfig
 	paramsPool   sync.Pool
+	contextPool  sync.Pool
 }
 
 type RouterConfig struct {
-	NotFoundHandler         http.Handler
-	MethodNotAllowedHandler http.Handler
-	InternalErrorHandler    http.Handler
+	NotFoundHandler         HandlerFunc
+	MethodNotAllowedHandler HandlerFunc
+	InternalErrorHandler    HandlerFunc
 }
 
 var DefaultRouterConfig = &RouterConfig{
-	NotFoundHandler:         &defaultNotFoundHandler{},
-	MethodNotAllowedHandler: &defaultMethodNotAllowedHandler{},
-	InternalErrorHandler:    &defaultInternalErrorHandler{},
+	NotFoundHandler:         defaultNotFoundHandler,
+	MethodNotAllowedHandler: defaultMethodNotAllowedHandler,
+	InternalErrorHandler:    defaultInternalErrorHandler,
 }
 
-// Route adds a new route to the router
-func (ro *Router) Route(method, path string, handlerFunc http.HandlerFunc) {
+func (ro *Router) Route(method, path string, handlerFunc HandlerFunc) {
 	ro.routes = append(ro.routes, Route{
 		Method:  method,
 		Path:    path,
@@ -35,13 +34,26 @@ func (ro *Router) Route(method, path string, handlerFunc http.HandlerFunc) {
 }
 
 func (ro *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	paramsMap := ro.paramsPool.Get().(ParamsMap)
-	defer ro.paramsPool.Put(paramsMap)
+	ctx := ro.contextPool.Get().(*Context)
+	ctx.Request = r
+	ctx.ResponseWriter = w
+	ctx.Params = ro.paramsPool.Get().(ParamsMap)
+
+	defer func() {
+		for k := range ctx.Params {
+			delete(ctx.Params, k)
+		}
+		ro.paramsPool.Put(ctx.Params)
+		ctx.Request = nil
+		ctx.ResponseWriter = nil
+		ctx.Params = nil
+		ro.contextPool.Put(ctx)
+	}()
 
 	for i := range ro.routes {
-		match, params, err := urlMatchesPattern(ro.routes[i].Path, r.URL.Path, paramsMap)
+		match, _, err := urlMatchesPattern(ro.routes[i].Path, r.URL.Path, ctx.Params)
 		if err != nil {
-			ro.routerConfig.InternalErrorHandler.ServeHTTP(w, r)
+			ro.routerConfig.InternalErrorHandler(ctx)
 			return
 		}
 		if !match {
@@ -49,21 +61,17 @@ func (ro *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if !strings.EqualFold(ro.routes[i].Method, r.Method) {
-			ro.routerConfig.MethodNotAllowedHandler.ServeHTTP(w, r)
+			ro.routerConfig.MethodNotAllowedHandler(ctx)
 			return
 		}
 
-		// Set params
-		ctx := context.WithValue(r.Context(), paramsGetter{}, params)
-		r = r.WithContext(ctx)
-
 		// We have a match! Let's call the handler
-		ro.routes[i].ServeHTTP(w, r)
+		ro.routes[i].Handler(ctx)
 		return
 	}
 
 	// No matches! Let's 404
-	ro.routerConfig.NotFoundHandler.ServeHTTP(w, r)
+	ro.routerConfig.NotFoundHandler(ctx)
 }
 
 func NewRouter(routerConfig *RouterConfig) *Router {
@@ -75,6 +83,11 @@ func NewRouter(routerConfig *RouterConfig) *Router {
 		paramsPool: sync.Pool{
 			New: func() interface{} {
 				return make(ParamsMap)
+			},
+		},
+		contextPool: sync.Pool{
+			New: func() interface{} {
+				return &Context{}
 			},
 		},
 	}

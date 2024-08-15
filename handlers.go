@@ -2,44 +2,38 @@ package mux
 
 import "net/http"
 
-func (ro *Router) GET(path string, handlerFunc http.HandlerFunc) {
+func (ro *Router) GET(path string, handlerFunc HandlerFunc) {
 	ro.Route("GET", path, handlerFunc)
 }
 
-func (ro *Router) POST(path string, handlerFunc http.HandlerFunc) {
+func (ro *Router) POST(path string, handlerFunc HandlerFunc) {
 	ro.Route("POST", path, handlerFunc)
 }
 
-func (ro *Router) DELETE(path string, handlerFunc http.HandlerFunc) {
+func (ro *Router) DELETE(path string, handlerFunc HandlerFunc) {
 	ro.Route("DELETE", path, handlerFunc)
 }
 
-func (ro *Router) PATCH(path string, handlerFunc http.HandlerFunc) {
+func (ro *Router) PATCH(path string, handlerFunc HandlerFunc) {
 	ro.Route("PATCH", path, handlerFunc)
 }
 
 // Default error handlers (NotFound, MethodNotAllowed)
 
-type (
-	defaultMethodNotAllowedHandler struct{}
-	defaultNotFoundHandler         struct{}
-	defaultInternalErrorHandler    struct{}
-)
-
-func (*defaultMethodNotAllowedHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header()["Content-Type"] = []string{"application/json"}
-	w.WriteHeader(http.StatusMethodNotAllowed)
-	w.Write(errMethodNotAllowed)
+func defaultMethodNotAllowedHandler(c *Context) {
+	c.ResponseWriter.Header().Set("Content-Type", "application/json")
+	c.ResponseWriter.WriteHeader(http.StatusMethodNotAllowed)
+	c.ResponseWriter.Write(errMethodNotAllowed)
 }
 
-func (*defaultNotFoundHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header()["Content-Type"] = []string{"application/json"}
-	w.WriteHeader(http.StatusNotFound)
-	w.Write(errNotFound)
+func defaultNotFoundHandler(c *Context) {
+	c.ResponseWriter.Header().Set("Content-Type", "application/json")
+	c.ResponseWriter.WriteHeader(http.StatusNotFound)
+	c.ResponseWriter.Write(errNotFound)
 }
 
-func (*defaultInternalErrorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header()["Content-Type"] = []string{"application/json"}
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Write(errInternalError)
+func defaultInternalErrorHandler(c *Context) {
+	c.ResponseWriter.Header().Set("Content-Type", "application/json")
+	c.ResponseWriter.WriteHeader(http.StatusInternalServerError)
+	c.ResponseWriter.Write(errInternalError)
 }
