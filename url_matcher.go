@@ -3,42 +3,64 @@ package mux
 import (
 	"errors"
 	"net/http"
-	"strings"
 )
 
 type paramsGetter struct{}
 type ParamsMap = map[string]string
 
-var paramsMapInstance = make(ParamsMap, 0)
-
 func Params(r *http.Request) ParamsMap {
 	return r.Context().Value(paramsGetter{}).(ParamsMap)
 }
 
-func urlMatchesPattern(pattern string, url string) (bool, ParamsMap, error) {
+func urlMatchesPattern(pattern, url string, paramsMap ParamsMap) (bool, ParamsMap, error) {
 	if pattern == "" || url == "" {
 		return false, nil, errors.New("both pattern and url required")
 	}
 
-	urlValues := strings.Split(url, "/")[1:]
-	params := strings.Split(pattern, "/")[1:]
+	patternLen := len(pattern)
+	urlLen := len(url)
 
-	if len(urlValues) != len(params) {
+	var i, j, paramStart int
+
+	// Clear the map without reallocating
+	for k := range paramsMap {
+		delete(paramsMap, k)
+	}
+
+	for i < patternLen && j < urlLen {
+		if pattern[i] == '{' {
+			paramStart = i + 1
+			for i < patternLen && pattern[i] != '}' {
+				i++
+			}
+			if i == patternLen {
+				return false, nil, errors.New("invalid pattern: unclosed '{'")
+			}
+			key := pattern[paramStart:i]
+			valueStart := j
+			for j < urlLen && url[j] != '/' {
+				j++
+			}
+			paramsMap[key] = url[valueStart:j]
+			i++ // Skip closing '}'
+		} else if pattern[i] == '/' {
+			if url[j] != '/' {
+				return false, nil, nil
+			}
+			i++
+			j++
+		} else {
+			if i == patternLen || j == urlLen || pattern[i] != url[j] {
+				return false, nil, nil
+			}
+			i++
+			j++
+		}
+	}
+
+	if i != patternLen || j != urlLen {
 		return false, nil, nil
 	}
 
-	paramsMapInstance := ParamsMap{}
-	for idx, param := range params {
-		if strings.HasPrefix(param, "{") && strings.HasSuffix(param, "}") {
-			key := param[1 : len(param)-1]
-			paramsMapInstance[key] = urlValues[idx]
-			continue
-		}
-
-		if param != urlValues[idx] {
-			return false, nil, nil
-		}
-	}
-
-	return true, paramsMapInstance, nil
+	return true, paramsMap, nil
 }

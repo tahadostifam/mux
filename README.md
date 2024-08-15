@@ -28,24 +28,22 @@ import (
 )
 
 func main() {
-	router := mux.NewRouter(*mux.DefaultRouterConfig)
+	router := mux.NewRouter(mux.DefaultRouterConfig)
 
-	router.GET("/sample", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Sample"))
+	router.GET("/sample", func(c *mux.Context) {
+		c.ResponseWriter.Write([]byte("Sample"))
 	})
 
-	router.Route("GET", "/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello world"))
+	router.Route("GET", "/", func(c *mux.Context) {
+		c.ResponseWriter.Write([]byte("Hello world"))
 	})
 
-	router.Route("GET", "/posts/{slug}", func(w http.ResponseWriter, r *http.Request) {
-		r.Header.Add("Content-Type", "text/html")
+	router.Route("GET", "/posts/{slug}", func(c *mux.Context) {
+		c.Request.Header.Add("Content-Type", "text/html")
 
-		params := mux.Params(r)
+		slug := c.Param("slug")
 
-		slug := params["slug"]
-
-		w.Write([]byte("<h1>Post Slug:  " + slug + "</h>"))
+		c.ResponseWriter.Write([]byte("<h1>Post Slug:  " + slug + "</h>"))
 	})
 
 	fmt.Println("Server is listening on port 3000!")
@@ -61,7 +59,7 @@ Check `examples/` directory for more...
 goos: linux
 goarch: amd64
 pkg: github.com/tahadostifam/go-mux
-cpu: Intel(R) Core(TM) i7-6820HQ CPU @ 2.70GHz
-BenchmarkUrlMatchesPattern
-BenchmarkUrlMatchesPattern-8 [1280358] [866.1 ns/op] [1032 B/op] [6 allocs/op]
+cpu: Intel(R) Core(TM) i7-10510U CPU @ 1.80GHz
+BenchmarkRouter-8                2014885               567.0 ns/op           210 B/op          0 allocs/op
+BenchmarkUrlMatchesPattern-8    85451278                13.62 ns/op            0 B/op          0 allocs/op
 ```
